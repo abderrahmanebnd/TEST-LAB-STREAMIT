@@ -72,9 +72,6 @@ Thumbs.db
 # Screenshots (if any)
 screenshots/
 screenshot_*.png
-*.png
-*.jpg
-*.jpeg
 !README*.png
 !docs/*.png
 
