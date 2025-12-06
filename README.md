@@ -22,8 +22,8 @@ This Streamlit application provides a powerful interface to explore Olympic data
 
 1. Clone this repository:
 ```bash
-git clone <repository-url>
-cd TEST-LAB-STREAMIT
+git clone https://github.com/abderrahmanebnd/paris-2024-olympics-streamlit.git
+cd paris-2024-olympics-streamlit
 ```
 
 2. Install required dependencies:
@@ -88,7 +88,7 @@ The dashboard features the official Paris 2024 Olympics brand colors:
 ## 📁 Project Structure
 
 ```
-TEST-LAB-STREAMIT/
+paris-2024-olympics-streamlit/
 │
 ├── 1_Overview.py              # Main entry point
 ├── pages/                     # Multi-page application pages
