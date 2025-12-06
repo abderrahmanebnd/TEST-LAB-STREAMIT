@@ -192,14 +192,11 @@ This project is created for educational purposes as part of the LA28 Volunteer S
 
 ## 🌐 Deployed Dashboard
 
-**Live Application**: []
+**Live Application**: [https://paris-2024-olympics.streamlit.app](https://paris-2024-olympics-dashboard.streamlit.app)
 
 
 - **Dataset**: [Kaggle - Paris 2024 Olympic Games](https://www.kaggle.com/datasets/piterfm/paris-2024-olympic-summer-games)
 - **Streamlit Documentation**: [https://docs.streamlit.io/](https://docs.streamlit.io/)
 - **Plotly Documentation**: [https://plotly.com/python/](https://plotly.com/python/)
 
----
-
-**Good luck with your analysis! 🏅**
 
