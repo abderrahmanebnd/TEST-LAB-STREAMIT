@@ -124,18 +124,40 @@ if not data["athletes"].empty:
 
             with col1:
                 st.subheader("Profile")
-                if "Image" in athlete.index and pd.notna(athlete["Image"]):
+                # Check for image in various possible column names
+                image_col = None
+                for col in [
+                    "Image",
+                    "image",
+                    "Image_URL",
+                    "image_url",
+                    "photo",
+                    "Photo",
+                    "picture",
+                    "Picture",
+                ]:
+                    if (
+                        col in athlete.index
+                        and pd.notna(athlete[col])
+                        and str(athlete[col]).strip() != ""
+                    ):
+                        image_col = col
+                        break
+
+                if image_col:
                     try:
-                        st.image(athlete["Image"], width=200)
-                    except:
-                        st.image(
-                            "https://via.placeholder.com/200x200?text=Athlete",
-                            width=200,
-                        )
+                        image_url = str(athlete[image_col]).strip()
+                        if image_url.startswith("http"):
+                            st.image(image_url, width=200)
+                        else:
+                            # Try as local path
+                            st.image(image_url, width=200)
+                    except Exception as e:
+                        # Use default profile image
+                        st.image("icons8-user-profile-100.png", width=200)
                 else:
-                    st.image(
-                        "https://via.placeholder.com/200x200?text=Athlete", width=200
-                    )
+                    # Use default profile image
+                    st.image("icons8-user-profile-100.png", width=200)
 
             with col2:
                 st.subheader("Personal Information")

@@ -254,14 +254,148 @@ def filter_data(df: pd.DataFrame,
     return filtered_df
 
 def get_country_flag_emoji(country_name: str) -> str:
-    """Get flag emoji for country name (simplified)"""
-    flag_map = {
+    """Get flag emoji for country name or NOC code"""
+    if not country_name or pd.isna(country_name):
+        return '🏳️'
+    
+    country_name = str(country_name).strip()
+    
+    # Comprehensive NOC code to flag emoji mapping
+    noc_to_flag = {
+        # Major countries
+        'USA': '🇺🇸', 'CHN': '🇨🇳', 'JPN': '🇯🇵', 'FRA': '🇫🇷',
+        'GER': '🇩🇪', 'ITA': '🇮🇹', 'GBR': '🇬🇧', 'RUS': '🇷🇺',
+        'AUS': '🇦🇺', 'CAN': '🇨🇦', 'BRA': '🇧🇷', 'KOR': '🇰🇷',
+        'ESP': '🇪🇸', 'NED': '🇳🇱', 'POL': '🇵🇱', 'IND': '🇮🇳',
+        'ARG': '🇦🇷', 'MEX': '🇲🇽', 'SUI': '🇨🇭', 'SWE': '🇸🇪',
+        'NOR': '🇳🇴', 'DEN': '🇩🇰', 'FIN': '🇫🇮', 'BEL': '🇧🇪',
+        'GRE': '🇬🇷', 'TUR': '🇹🇷', 'IRL': '🇮🇪', 'POR': '🇵🇹',
+        'CZE': '🇨🇿', 'HUN': '🇭🇺', 'ROU': '🇷🇴', 'UKR': '🇺🇦',
+        'EGY': '🇪🇬', 'RSA': '🇿🇦', 'KEN': '🇰🇪', 'ETH': '🇪🇹',
+        'NGR': '🇳🇬', 'MAR': '🇲🇦', 'TUN': '🇹🇳', 'ALG': '🇩🇿',
+        'NZL': '🇳🇿', 'FIJ': '🇫🇯', 'SAM': '🇼🇸', 'TGA': '🇹🇴',
+        'THA': '🇹🇭', 'MAS': '🇲🇾', 'SGP': '🇸🇬', 'PHI': '🇵🇭',
+        'INA': '🇮🇩', 'VIE': '🇻🇳', 'TWN': '🇹🇼', 'HKG': '🇭🇰',
+        'ISR': '🇮🇱', 'UAE': '🇦🇪', 'QAT': '🇶🇦', 'KSA': '🇸🇦',
+        'IRN': '🇮🇷', 'IRQ': '🇮🇶', 'PAK': '🇵🇰', 'BAN': '🇧🇩',
+        'ARM': '🇦🇲', 'GEO': '🇬🇪', 'AZE': '🇦🇿', 'KAZ': '🇰🇿',
+        'UZB': '🇺🇿', 'KGZ': '🇰🇬', 'TJK': '🇹🇯', 'TKM': '🇹🇲',
+        'CHI': '🇨🇱', 'COL': '🇨🇴', 'PER': '🇵🇪', 'VEN': '🇻🇪',
+        'ECU': '🇪🇨', 'BOL': '🇧🇴', 'PAR': '🇵🇾', 'URU': '🇺🇾',
+        'CUB': '🇨🇺', 'JAM': '🇯🇲', 'TTO': '🇹🇹', 'BAH': '🇧🇸',
+        'BAR': '🇧🇧', 'BER': '🇧🇲', 'CAY': '🇰🇾', 'CRC': '🇨🇷',
+        'DOM': '🇩🇴', 'ESA': '🇸🇻', 'GUA': '🇬🇹', 'HAI': '🇭🇹',
+        'HON': '🇭🇳', 'NCA': '🇳🇮', 'PAN': '🇵🇦', 'PUR': '🇵🇷',
+        'ISV': '🇻🇮', 'VIN': '🇻🇨', 'LCA': '🇱🇨', 'SKN': '🇰🇳',
+        'DMA': '🇩🇲', 'GRN': '🇬🇩', 'BLZ': '🇧🇿', 'GUY': '🇬🇾',
+        'SUR': '🇸🇷', 'AFG': '🇦🇫', 'ALB': '🇦🇱', 'AND': '🇦🇩',
+        'ANG': '🇦🇴', 'ANT': '🇦🇬', 'ARU': '🇦🇼', 'ASA': '🇦🇸',
+        'AUT': '🇦🇹', 'AZE': '🇦🇿', 'BAH': '🇧🇸', 'BAN': '🇧🇩',
+        'BAR': '🇧🇧', 'BDI': '🇧🇮', 'BEL': '🇧🇪', 'BEN': '🇧🇯',
+        'BER': '🇧🇲', 'BHU': '🇧🇹', 'BIH': '🇧🇦', 'BLR': '🇧🇾',
+        'BOL': '🇧🇴', 'BOT': '🇧🇼', 'BRA': '🇧🇷', 'BRN': '🇧🇳',
+        'BUL': '🇧🇬', 'BUR': '🇧🇫', 'CAF': '🇨🇫', 'CAM': '🇰🇭',
+        'CAN': '🇨🇦', 'CAY': '🇰🇾', 'CGO': '🇨🇬', 'CHI': '🇨🇱',
+        'CHN': '🇨🇳', 'CIV': '🇨🇮', 'CMR': '🇨🇲', 'COD': '🇨🇩',
+        'COK': '🇨🇰', 'COL': '🇨🇴', 'COM': '🇰🇲', 'CPV': '🇨🇻',
+        'CRC': '🇨🇷', 'CRO': '🇭🇷', 'CUB': '🇨🇺', 'CYP': '🇨🇾',
+        'CZE': '🇨🇿', 'DEN': '🇩🇰', 'DJI': '🇩🇯', 'DMA': '🇩🇲',
+        'DOM': '🇩🇴', 'ECU': '🇪🇨', 'EGY': '🇪🇬', 'ERI': '🇪🇷',
+        'ESA': '🇸🇻', 'ESP': '🇪🇸', 'EST': '🇪🇪', 'ETH': '🇪🇹',
+        'FIJ': '🇫🇯', 'FIN': '🇫🇮', 'FRA': '🇫🇷', 'FSM': '🇫🇲',
+        'GAB': '🇬🇦', 'GAM': '🇬🇲', 'GBR': '🇬🇧', 'GBS': '🇬🇼',
+        'GEO': '🇬🇪', 'GER': '🇩🇪', 'GHA': '🇬🇭', 'GRE': '🇬🇷',
+        'GRN': '🇬🇩', 'GUA': '🇬🇹', 'GUI': '🇬🇳', 'GUM': '🇬🇺',
+        'GUY': '🇬🇾', 'HAI': '🇭🇹', 'HKG': '🇭🇰', 'HON': '🇭🇳',
+        'HUN': '🇭🇺', 'IDN': '🇮🇩', 'IND': '🇮🇳', 'IRL': '🇮🇪',
+        'IRN': '🇮🇷', 'IRQ': '🇮🇶', 'ISL': '🇮🇸', 'ISR': '🇮🇱',
+        'ISV': '🇻🇮', 'ITA': '🇮🇹', 'IVB': '🇻🇬', 'JAM': '🇯🇲',
+        'JOR': '🇯🇴', 'JPN': '🇯🇵', 'KAZ': '🇰🇿', 'KEN': '🇰🇪',
+        'KGZ': '🇰🇬', 'KIR': '🇰🇮', 'KOR': '🇰🇷', 'KSA': '🇸🇦',
+        'KWT': '🇰🇼', 'LAO': '🇱🇦', 'LAT': '🇱🇻', 'LBN': '🇱🇧',
+        'LBR': '🇱🇷', 'LCA': '🇱🇨', 'LES': '🇱🇸', 'LIE': '🇱🇮',
+        'LTU': '🇱🇹', 'LUX': '🇱🇺', 'LBA': '🇱🇾', 'MAD': '🇲🇬',
+        'MAR': '🇲🇦', 'MAS': '🇲🇾', 'MDA': '🇲🇩', 'MDV': '🇲🇻',
+        'MEX': '🇲🇽', 'MGL': '🇲🇳', 'MKD': '🇲🇰', 'MLI': '🇲🇱',
+        'MLT': '🇲🇹', 'MNE': '🇲🇪', 'MOZ': '🇲🇿', 'MRI': '🇲🇺',
+        'MTN': '🇲🇷', 'MYA': '🇲🇲', 'NAM': '🇳🇦', 'NCA': '🇳🇮',
+        'NED': '🇳🇱', 'NEP': '🇳🇵', 'NGA': '🇳🇬', 'NIG': '🇳🇪',
+        'NOR': '🇳🇴', 'NRU': '🇳🇷', 'NZL': '🇳🇿', 'OMA': '🇴🇲',
+        'PAK': '🇵🇰', 'PAN': '🇵🇦', 'PAR': '🇵🇾', 'PER': '🇵🇪',
+        'PHI': '🇵🇭', 'PLW': '🇵🇼', 'PNG': '🇵🇬', 'POL': '🇵🇱',
+        'POR': '🇵🇹', 'PRK': '🇰🇵', 'PUR': '🇵🇷', 'QAT': '🇶🇦',
+        'ROU': '🇷🇴', 'RSA': '🇿🇦', 'RUS': '🇷🇺', 'RWA': '🇷🇼',
+        'SAM': '🇼🇸', 'SEN': '🇸🇳', 'SEY': '🇸🇨', 'SGP': '🇸🇬',
+        'SKN': '🇰🇳', 'SLE': '🇸🇱', 'SLO': '🇸🇮', 'SMR': '🇸🇲',
+        'SOL': '🇸🇧', 'SOM': '🇸🇴', 'SRB': '🇷🇸', 'SRI': '🇱🇰',
+        'SSD': '🇸🇸', 'STP': '🇸🇹', 'SUD': '🇸🇩', 'SUI': '🇨🇭',
+        'SUR': '🇸🇷', 'SVK': '🇸🇰', 'SWE': '🇸🇪', 'SWZ': '🇸🇿',
+        'SYR': '🇸🇾', 'TAN': '🇹🇿', 'TGA': '🇹🇴', 'THA': '🇹🇭',
+        'TJK': '🇹🇯', 'TKM': '🇹🇲', 'TLS': '🇹🇱', 'TOG': '🇹🇬',
+        'TPE': '🇹🇼', 'TTO': '🇹🇹', 'TUN': '🇹🇳', 'TUR': '🇹🇷',
+        'TUV': '🇹🇻', 'UAE': '🇦🇪', 'UGA': '🇺🇬', 'UKR': '🇺🇦',
+        'URU': '🇺🇾', 'USA': '🇺🇸', 'UZB': '🇺🇿', 'VAN': '🇻🇺',
+        'VEN': '🇻🇪', 'VIN': '🇻🇨', 'VIE': '🇻🇳', 'VUT': '🇻🇺',
+        'YEM': '🇾🇪', 'ZAM': '🇿🇲', 'ZIM': '🇿🇼'
+    }
+    
+    # Check if it's a 3-letter NOC code (uppercase)
+    if len(country_name) == 3 and country_name.isupper():
+        return noc_to_flag.get(country_name, '🏳️')
+    
+    # Check if it's a 2-letter code (ISO)
+    if len(country_name) == 2 and country_name.isupper():
+        # Map common 2-letter codes
+        iso_to_flag = {
+            'US': '🇺🇸', 'CN': '🇨🇳', 'JP': '🇯🇵', 'FR': '🇫🇷',
+            'DE': '🇩🇪', 'IT': '🇮🇹', 'GB': '🇬🇧', 'RU': '🇷🇺',
+            'AU': '🇦🇺', 'CA': '🇨🇦', 'BR': '🇧🇷', 'KR': '🇰🇷',
+            'ES': '🇪🇸', 'NL': '🇳🇱', 'PL': '🇵🇱', 'IN': '🇮🇳'
+        }
+        return iso_to_flag.get(country_name, '🏳️')
+    
+    # Try country name mapping (for full names)
+    country_name_map = {
         'United States': '🇺🇸', 'China': '🇨🇳', 'Japan': '🇯🇵', 'France': '🇫🇷',
         'Germany': '🇩🇪', 'Italy': '🇮🇹', 'United Kingdom': '🇬🇧', 'Russia': '🇷🇺',
         'Australia': '🇦🇺', 'Canada': '🇨🇦', 'Brazil': '🇧🇷', 'South Korea': '🇰🇷',
-        'Spain': '🇪🇸', 'Netherlands': '🇳🇱', 'Poland': '🇵🇱', 'India': '🇮🇳'
+        'Spain': '🇪🇸', 'Netherlands': '🇳🇱', 'Poland': '🇵🇱', 'India': '🇮🇳',
+        'Armenia': '🇦🇲', 'Argentina': '🇦🇷', 'Mexico': '🇲🇽', 'Switzerland': '🇨🇭',
+        'Sweden': '🇸🇪', 'Norway': '🇳🇴', 'Denmark': '🇩🇰', 'Finland': '🇫🇮',
+        'Belgium': '🇧🇪', 'Greece': '🇬🇷', 'Turkey': '🇹🇷', 'Ireland': '🇮🇪',
+        'Portugal': '🇵🇹', 'Czech Republic': '🇨🇿', 'Hungary': '🇭🇺', 'Romania': '🇷🇴',
+        'Ukraine': '🇺🇦', 'Egypt': '🇪🇬', 'South Africa': '🇿🇦', 'Kenya': '🇰🇪',
+        'Ethiopia': '🇪🇹', 'Nigeria': '🇳🇬', 'Morocco': '🇲🇦', 'Tunisia': '🇹🇳',
+        'Algeria': '🇩🇿', 'New Zealand': '🇳🇿', 'Fiji': '🇫🇯', 'Samoa': '🇼🇸',
+        'Tonga': '🇹🇴', 'Thailand': '🇹🇭', 'Malaysia': '🇲🇾', 'Singapore': '🇸🇬',
+        'Philippines': '🇵🇭', 'Indonesia': '🇮🇩', 'Vietnam': '🇻🇳', 'Taiwan': '🇹🇼',
+        'Hong Kong': '🇭🇰', 'Israel': '🇮🇱', 'United Arab Emirates': '🇦🇪',
+        'Qatar': '🇶🇦', 'Saudi Arabia': '🇸🇦', 'Iran': '🇮🇷', 'Iraq': '🇮🇶',
+        'Pakistan': '🇵🇰', 'Bangladesh': '🇧🇩', 'Georgia': '🇬🇪', 'Azerbaijan': '🇦🇿',
+        'Kazakhstan': '🇰🇿', 'Uzbekistan': '🇺🇿', 'Kyrgyzstan': '🇰🇬', 'Tajikistan': '🇹🇯',
+        'Turkmenistan': '🇹🇲', 'Chile': '🇨🇱', 'Colombia': '🇨🇴', 'Peru': '🇵🇪',
+        'Venezuela': '🇻🇪', 'Ecuador': '🇪🇨', 'Bolivia': '🇧🇴', 'Paraguay': '🇵🇾',
+        'Uruguay': '🇺🇾', 'Cuba': '🇨🇺', 'Jamaica': '🇯🇲', 'Trinidad and Tobago': '🇹🇹',
+        'Bahamas': '🇧🇸', 'Barbados': '🇧🇧', 'Bermuda': '🇧🇲', 'Cayman Islands': '🇰🇾',
+        'Costa Rica': '🇨🇷', 'Dominican Republic': '🇩🇴', 'El Salvador': '🇸🇻',
+        'Guatemala': '🇬🇹', 'Haiti': '🇭🇹', 'Honduras': '🇭🇳', 'Nicaragua': '🇳🇮',
+        'Panama': '🇵🇦', 'Puerto Rico': '🇵🇷', 'U.S. Virgin Islands': '🇻🇮',
+        'Saint Vincent and the Grenadines': '🇻🇨', 'Saint Lucia': '🇱🇨',
+        'Saint Kitts and Nevis': '🇰🇳', 'Dominica': '🇩🇲', 'Grenada': '🇬🇩',
+        'Belize': '🇧🇿', 'Guyana': '🇬🇾', 'Suriname': '🇸🇷'
     }
-    return flag_map.get(country_name, '🏳️')
+    
+    # Try exact match
+    if country_name in country_name_map:
+        return country_name_map[country_name]
+    
+    # Try case-insensitive match
+    for key, flag in country_name_map.items():
+        if key.lower() == country_name.lower():
+            return flag
+    
+    # Default fallback
+    return '🏳️'
 
 def merge_athlete_coach_data(athletes_df: pd.DataFrame, 
                             coaches_df: pd.DataFrame,
